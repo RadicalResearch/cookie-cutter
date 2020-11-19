@@ -10,7 +10,7 @@ persisting values in cookies. The cumulative effect of this ecosystems setting
 cookies on the same domain can have deleterious effects. The size of the cookies
 build up over time and can result in bloated HTTP request headers.
 
-With ad-networks and yag managers often loading scripts indirectly from any
+With ad-networks and tag managers often loading scripts indirectly from any
 number of other sources it can be difficult to have a clear view of what scripts
 are responsible for setting what cookies, and consequently make decisions or
 take action about how to control these cookies.
