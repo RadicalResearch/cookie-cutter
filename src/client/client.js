@@ -159,5 +159,5 @@
   document,
   navigator,
   5, // Cookie Size Threshold
-  "http://collect.example.org/collect" // HTTP report collector endpoint
+  "http://collect.example.org:8080/collect" // HTTP report collector endpoint
 );

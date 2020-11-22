@@ -30,7 +30,7 @@ async function test(browserName, requests) {
     const urlPath = Math.random().toString(32);
 
     // Load up the test page with the client integration
-    await driver.get("http://localhost.example.com/" + urlPath);
+    await driver.get("http://localhost.example.com:8080/" + urlPath);
 
     // Set a large cookie
     await driver.executeScript(
