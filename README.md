@@ -1,5 +1,8 @@
 # Cookie Cutter
 
+**Notice:** _This service is currently experimental. It should not be considered
+production-ready._
+
 Intercept scripts setting first-party cookies. Report on the cookies being set
 and potentially store them with an alternative mechanism (like local storage) or
 disregard the cookie entirely.

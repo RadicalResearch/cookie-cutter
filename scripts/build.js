@@ -4,13 +4,16 @@ const esprima = require("esprima");
 const esmangle = require("esmangle");
 const escodegen = require("escodegen");
 
-const code = fs.readFileSync(path.resolve(__dirname, "../client/client.js"), {
-  encoding: "utf8",
-});
+const code = fs.readFileSync(
+  path.resolve(__dirname, "../src/client/client.js"),
+  {
+    encoding: "utf8",
+  }
+);
 
-const ast = esprima.parse(code);
-const result = esmangle.mangle(ast);
-const minifiedCode = escodegen.generate(result, {
+let ast = esprima.parse(code);
+ast = esmangle.mangle(ast);
+const minifiedCode = escodegen.generate(ast, {
   format: {
     renumber: true,
     escapeless: true,
