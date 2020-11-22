@@ -47,6 +47,7 @@ async function test(browserName, requests) {
     assert.ok(
       requests.some((r) => {
         try {
+          console.log("r.body", r.body);
           var body = JSON.parse(r.body);
           return (
             body.viewUrl.endsWith(urlPath) &&
