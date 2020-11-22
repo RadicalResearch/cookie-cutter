@@ -17,6 +17,7 @@ jobs:
       - run: npm install
       - run: |
           echo 127.0.0.1 localhost.example.com | sudo tee -a /etc/hosts
+          echo 127.0.0.1 collect.example.org | sudo tee -a /etc/hosts
       - run: npm test
 
 workflows:
