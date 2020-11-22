@@ -16,7 +16,7 @@ jobs:
     executor: node
     steps:
       - run: |
-          echo localhost.example.com 127.0.0.1 >> /etc/hosts
+          echo 127.0.0.1 localhost.example.com | sudo tee -a /etc/hosts
       - run: npm test
 
 workflows:
