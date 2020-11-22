@@ -83,5 +83,7 @@ async function test(browserName, requests) {
 
   await Promise.all(tests);
 
+  console.log("requests", requests);
+
   process.exit(0);
 })();
