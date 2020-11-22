@@ -8,6 +8,14 @@ function startTestServer(collectCallback) {
     "utf-8"
   );
 
+  function handlePreflight(req, res) {
+    res.writeHead(204); //No Content
+    res.setHeader("Access-Control-Allow-Origin", req.getHeader("origin"));
+    res.setHeader("Access-Control-Allow-Methods", "POST");
+    res.setHeader("Access-Control-Max-Age", "86400");
+    res.end();
+  }
+
   function handleCollect(req, res) {
     console.log(req.method, req.url, req.headers);
     let body = [];
@@ -43,7 +51,11 @@ function startTestServer(collectCallback) {
     http
       .createServer(function requestListener(req, res) {
         if (req.url.startsWith("/collect")) {
-          return handleCollect(req, res);
+          if (req.method === "OPTIONS") {
+            return handlePreflight(req, res);
+          } else if (req.method === "POST") {
+            return handleCollect(req, res);
+          }
         }
         return handlePage(req, res);
       })
