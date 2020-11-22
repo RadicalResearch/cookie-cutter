@@ -46,7 +46,7 @@ function startTestServer(collectCallback) {
         }
         return handlePage(req, res);
       })
-      .listen(80, () => {
+      .listen(8080, () => {
         resolve(requests);
       });
   });
