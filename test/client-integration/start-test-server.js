@@ -9,6 +9,7 @@ function startTestServer(collectCallback) {
   );
 
   function handleCollect(req, res) {
+    console.log(req.method, req.url, req.headers);
     let body = [];
     req
       .on("data", (chunk) => {
