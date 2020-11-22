@@ -46,10 +46,16 @@ async function test(browserName, requests) {
     // Assert that the beacon was sent
     assert.ok(
       requests.some((r) => {
-        var body = JSON.parse(r.body);
-        return (
-          body.viewUrl.endsWith(urlPath) && body.reports[0].name == "TestCookie"
-        );
+        try {
+          var body = JSON.parse(r.body);
+          return (
+            body.viewUrl.endsWith(urlPath) &&
+            body.reports[0].name == "TestCookie"
+          );
+        } catch (err) {
+          console.log(err, r.body);
+        }
+        return false;
       }),
       "the collect endpoint should have been called"
     );
