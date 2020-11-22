@@ -9,10 +9,10 @@ function startTestServer(collectCallback) {
   );
 
   function handlePreflight(req, res) {
-    res.writeHead(204); //No Content
     res.setHeader("Access-Control-Allow-Origin", req.headers["origin"]);
     res.setHeader("Access-Control-Allow-Methods", "POST");
     res.setHeader("Access-Control-Max-Age", "86400");
+    res.writeHead(204); //No Content
     res.end();
   }
 
