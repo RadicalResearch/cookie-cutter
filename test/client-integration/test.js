@@ -41,22 +41,24 @@ async function test(browserName, requests) {
     await driver.get("about:blank");
 
     // Wait around for beacon to be sent
-    await wait(2000);
+    await wait(10000);
 
     // Assert that the beacon was sent
     assert.ok(
       requests.some((r) => {
+        if (!r.body) {
+          return false;
+        }
         try {
-          console.log("r.body", r.body);
           var body = JSON.parse(r.body);
           return (
             body.viewUrl.endsWith(urlPath) &&
             body.reports[0].name == "TestCookie"
           );
         } catch (err) {
-          console.log(err, r.body);
+          console.log(err);
+          return false;
         }
-        return false;
       }),
       "the collect endpoint should have been called"
     );
