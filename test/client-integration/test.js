@@ -40,17 +40,28 @@ function getBeaconRequest(requests, urlPath, cookieName) {
 
 async function test(browserName, requests) {
   const driver = new Builder()
+    // User remote driver
     .usingServer(webDriverServerUrl)
     // Modern Edge
-    .setEdgeOptions(new edge.Options().getPlatform("Windows 10"))
+    .setEdgeOptions(
+      new edge.Options().getBrowserVersion("86").getPlatform("Windows 10")
+    )
     // Modern Firefox
-    .setFirefoxOptions(new firefox.Options().setPlatform("Windows 10"))
+    .setFirefoxOptions(
+      new firefox.Options().getBrowserVersion("82x64").setPlatform("Windows 10")
+    )
     // Modern Chrome
-    .setChromeOptions(new chrome.Options().setPlatform("Windows 10"))
+    .setChromeOptions(
+      new chrome.Options().setBrowserVersion("86x64").setPlatform("Windows 10")
+    )
     // Old IE
-    .setIeOptions(new ie.Options().setPlatform("Windows 8"))
+    .setIeOptions(
+      new ie.Options().setBrowserVersion("8").setPlatform("Windows 7")
+    )
     // Old Safari
-    .setSafariOptions(new safari.Options().setBrowserVersion("8"))
+    .setSafariOptions(
+      new safari.Options().setBrowserVersion("8").setPlatform("Mac OSX 10.10")
+    )
     .withCapabilities({
       username: username,
       password: authkey,
