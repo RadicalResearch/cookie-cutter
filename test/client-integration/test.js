@@ -44,11 +44,11 @@ async function test(browserName, requests) {
     .usingServer(webDriverServerUrl)
     // Modern Edge
     .setEdgeOptions(
-      new edge.Options().getBrowserVersion("86").setPlatform("Windows 10")
+      new edge.Options().setBrowserVersion("86").setPlatform("Windows 10")
     )
     // Modern Firefox
     .setFirefoxOptions(
-      new firefox.Options().getBrowserVersion("82x64").setPlatform("Windows 10")
+      new firefox.Options().setBrowserVersion("82x64").setPlatform("Windows 10")
     )
     // Modern Chrome
     .setChromeOptions(
@@ -65,9 +65,19 @@ async function test(browserName, requests) {
     .withCapabilities({
       username: username,
       password: authkey,
+      record_network: "true",
     })
     .forBrowser(browserName)
     .build();
+
+  // Report session details
+  const session = await driver.getSession();
+  sessionId = session.id_;
+  console.log("Session ID: ", sessionId);
+  console.log(
+    "See your test run at: https://app.crossbrowsertesting.com/selenium/" +
+      sessionId
+  );
 
   try {
     const urlPath = Math.floor(Math.random() * 0x7fffffff).toString(32);
