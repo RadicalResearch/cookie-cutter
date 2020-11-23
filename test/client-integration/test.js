@@ -40,8 +40,7 @@ function getBeaconRequest(requests, urlPath, cookieName) {
 
 async function test(browserName, requests) {
   const driver = new Builder()
-    // User remote driver
-    .usingServer(webDriverServerUrl)
+    .forBrowser(browserName)
     // Modern Edge
     .setEdgeOptions(
       new edge.Options().setBrowserVersion("86").setPlatform("Windows 10")
@@ -62,12 +61,13 @@ async function test(browserName, requests) {
     .setSafariOptions(
       new safari.Options().setBrowserVersion("8").setPlatform("Mac OSX 10.10")
     )
+    // User remote driver
+    .usingServer(webDriverServerUrl)
     .withCapabilities({
       username: username,
       password: authkey,
       record_network: "true",
     })
-    .forBrowser(browserName)
     .build();
 
   // Report session details
