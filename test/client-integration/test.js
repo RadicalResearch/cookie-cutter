@@ -1,6 +1,9 @@
 const { Builder } = require("selenium-webdriver");
 const safari = require("selenium-webdriver/safari");
-const safari = require("selenium-webdriver/safari");
+const chrome = require("selenium-webdriver/chrome");
+const firefox = require("selenium-webdriver/firefox");
+const edge = require("selenium-webdriver/edge");
+const ie = require("selenium-webdriver/ie");
 const assert = require("assert").strict;
 
 const openTunnel = require("./open-tunnel");
@@ -16,10 +19,37 @@ function wait(ms) {
   });
 }
 
+function getBeaconRequest(requests, urlPath, cookieName) {
+  return requests.find((request) => {
+    if (!request.body) {
+      return false;
+    }
+    var body;
+    try {
+      body = JSON.parse(r.body);
+    } catch (err) {
+      return false;
+    }
+    if (body.viewUrl.endsWith(urlPath)) {
+      if (body.reports.some((report) => report.name === cookieName)) {
+        return true;
+      }
+    }
+  });
+}
+
 async function test(browserName, requests) {
   const driver = new Builder()
     .usingServer(webDriverServerUrl)
-    .setChromeOptions(new )
+    // Modern Edge
+    .setEdgeOptions(new edge.Options().getPlatform("Windows 10"))
+    // Modern Firefox
+    .setFirefoxOptions(new firefox.Options().setPlatform("Windows 10"))
+    // Modern Chrome
+    .setChromeOptions(new chrome.Options().setPlatform("Windows 10"))
+    // Old IE
+    .setIeOptions(new ie.Options().setPlatform("Windows 8"))
+    // Old Safari
     .setSafariOptions(new safari.Options().setBrowserVersion("8"))
     .withCapabilities({
       username: username,
@@ -29,7 +59,7 @@ async function test(browserName, requests) {
     .build();
 
   try {
-    const urlPath = Math.random().toString(32);
+    const urlPath = Math.floor(Math.random() * 0x7fffffff).toString(32);
 
     // Load up the test page with the client integration
     await driver.get("http://localhost.example.com:8080/" + urlPath);
@@ -46,26 +76,14 @@ async function test(browserName, requests) {
     await wait(10000);
 
     // Assert that the beacon was sent
-    assert.ok(
-      requests.some((r) => {
-        if (!r.body) {
-          return false;
-        }
-        try {
-          var body = JSON.parse(r.body);
-          return (
-            body.viewUrl.endsWith(urlPath) &&
-            body.reports[0].name == "TestCookie"
-          );
-        } catch (err) {
-          console.log(err);
-          return false;
-        }
-      }),
-      `${browserName} should called the collect endpoint`
+    const beaconRequest = getBeaconRequest(requests, urlPath, "TestCookie");
+    assert.notStrictEqual(
+      beaconRequest,
+      undefined,
+      `${browserName} should have called the collect endpoint`
     );
   } catch (err) {
-    console.error(err);
+    console.error("Error running test", err);
     throw err;
   } finally {
     await driver.quit();
@@ -78,7 +96,13 @@ async function test(browserName, requests) {
   await startTestServer((request, body) => {
     requests.push({ request, body });
   });
-  const browserNames = ["edge", "safari", "firefox", "chrome"];
+  const browserNames = [
+    "internet explorer",
+    "edge",
+    "safari",
+    "firefox",
+    "chrome",
+  ];
 
   // Run tests in parallel
   const tests = browserNames.map((browserName) => {
