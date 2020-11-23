@@ -44,7 +44,7 @@ async function test(browserName, requests) {
     .usingServer(webDriverServerUrl)
     // Modern Edge
     .setEdgeOptions(
-      new edge.Options().getBrowserVersion("86").getPlatform("Windows 10")
+      new edge.Options().getBrowserVersion("86").setPlatform("Windows 10")
     )
     // Modern Firefox
     .setFirefoxOptions(
