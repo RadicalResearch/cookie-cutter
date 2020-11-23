@@ -1,5 +1,6 @@
 const { Builder } = require("selenium-webdriver");
 const safari = require("selenium-webdriver/safari");
+const safari = require("selenium-webdriver/safari");
 const assert = require("assert").strict;
 
 const openTunnel = require("./open-tunnel");
@@ -18,6 +19,7 @@ function wait(ms) {
 async function test(browserName, requests) {
   const driver = new Builder()
     .usingServer(webDriverServerUrl)
+    .setChromeOptions(new )
     .setSafariOptions(new safari.Options().setBrowserVersion("8"))
     .withCapabilities({
       username: username,
@@ -60,7 +62,7 @@ async function test(browserName, requests) {
           return false;
         }
       }),
-      "the collect endpoint should have been called"
+      `${browserName} should called the collect endpoint`
     );
   } catch (err) {
     console.error(err);
@@ -84,8 +86,9 @@ async function test(browserName, requests) {
     return test(browserName, requests);
   });
 
-  await Promise.all(tests);
+  const results = await Promise.allSettled(tests);
 
+  console.log("results", results);
   console.log("requests", requests);
 
   process.exit(0);
