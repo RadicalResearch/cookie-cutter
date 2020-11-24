@@ -132,6 +132,7 @@ async function test(driver, requests) {
     const driver = new Builder()
       .usingServer(webDriverServerUrl)
       .withCapabilities(capabilities)
+      .forBrowser(browser[Capability.BROWSER_NAME])
       .build();
 
     console.log("running test in browser", browserName);
