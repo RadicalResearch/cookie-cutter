@@ -1,4 +1,9 @@
-const { Builder } = require("selenium-webdriver");
+const {
+  Builder,
+  Capabilities,
+  Capability,
+  Browser,
+} = require("selenium-webdriver");
 const safari = require("selenium-webdriver/safari");
 const chrome = require("selenium-webdriver/chrome");
 const firefox = require("selenium-webdriver/firefox");
@@ -38,38 +43,7 @@ function getBeaconRequest(requests, urlPath, cookieName) {
   });
 }
 
-async function test(browserName, requests) {
-  const driver = new Builder()
-    .forBrowser(browserName)
-    // Modern Edge
-    .setEdgeOptions(
-      new edge.Options().setBrowserVersion("86").setPlatform("Windows 10")
-    )
-    // Modern Firefox
-    .setFirefoxOptions(
-      new firefox.Options().setBrowserVersion("82x64").setPlatform("Windows 10")
-    )
-    // Modern Chrome
-    .setChromeOptions(
-      new chrome.Options().setBrowserVersion("86x64").setPlatform("Windows 10")
-    )
-    // Old IE
-    .setIeOptions(
-      new ie.Options().setBrowserVersion("8").setPlatform("Windows 7")
-    )
-    // Old Safari
-    .setSafariOptions(
-      new safari.Options().setBrowserVersion("8").setPlatform("Mac OSX 10.10")
-    )
-    // User remote driver
-    .usingServer(webDriverServerUrl)
-    .withCapabilities({
-      username: username,
-      password: authkey,
-      record_network: "true",
-    })
-    .build();
-
+async function test(driver, requests) {
   // Report session details
   const session = await driver.getSession();
   sessionId = session.id_;
@@ -114,19 +88,52 @@ async function test(browserName, requests) {
 (async function runTests() {
   await openTunnel();
   const requests = [];
+
+  // Record HTTP requests
   await startTestServer((request, body) => {
     requests.push({ request, body });
   });
-  const browserNames = [
-    "internet explorer",
-    "edge",
-    "safari",
-    "firefox",
-    "chrome",
+
+  const browsers = [
+    {
+      [Capability.BROWSER_NAME]: Browser.INTERNET_EXPLORER,
+      [Capability.PLATFORM_NAME]: "Windows 7",
+      [Capability.BROWSER_VERSION]: "8",
+    },
+    {
+      [Capability.BROWSER_NAME]: Browser.EDGE,
+      [Capability.PLATFORM_NAME]: "Windows 10",
+      [Capability.BROWSER_VERSION]: "86",
+    },
+    {
+      [Capability.BROWSER_NAME]: Browser.SAFARI,
+      [Capability.PLATFORM_NAME]: "Mac OSX 10.10",
+      [Capability.BROWSER_VERSION]: "8",
+    },
+    {
+      [Capability.BROWSER_NAME]: Browser.FIREFOX,
+      [Capability.PLATFORM_NAME]: "Windows 10",
+      [Capability.BROWSER_VERSION]: "82x64",
+    },
+    {
+      [Capability.BROWSER_NAME]: Browser.CHROME,
+      [Capability.PLATFORM_NAME]: "Windows 10",
+      [Capability.BROWSER_VERSION]: "86x64",
+    },
   ];
 
   // Run tests in parallel
-  const tests = browserNames.map((browserName) => {
+  const tests = browsers.map((browser) => {
+    const capabilities = new Capabilities(browser)
+      .set("username", username)
+      .set("password", authkey)
+      .set("record_network", "true");
+
+    const driver = new Builder()
+      .usingServer(webDriverServerUrl)
+      .withCapabilities(capabilities)
+      .build();
+
     console.log("running test in browser", browserName);
     return test(browserName, requests);
   });
