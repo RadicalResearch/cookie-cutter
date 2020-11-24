@@ -124,6 +124,8 @@ async function test(driver, requests) {
 
   // Run tests in parallel
   const tests = browsers.map((browser) => {
+    const browserName = browser[Capability.BROWSER_NAME];
+
     const capabilities = new Capabilities(browser)
       .set("username", username)
       .set("password", authkey)
@@ -132,7 +134,7 @@ async function test(driver, requests) {
     const driver = new Builder()
       .usingServer(webDriverServerUrl)
       .withCapabilities(capabilities)
-      .forBrowser(browser[Capability.BROWSER_NAME])
+      .forBrowser(browserName)
       .build();
 
     console.log("running test in browser", browserName);
