@@ -7,7 +7,7 @@
   "scripts": {
     "build": "node scripts/build.js",
     "pretest": "npm run build",
-    "test": "node -r dotenv/config test/client-integration/test.js"
+    "test": "node -r dotenv/config test/automation/test.js"
   },
   "keywords": [],
   "author": "",
