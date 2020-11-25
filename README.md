@@ -34,3 +34,14 @@ are responsible for setting unwanted cookies.
 With this report it would, potentially be possible to update the same script to
 disregard or provide alternative provision for cookies that were not deemed
 necessary.
+
+### Testing
+
+Automation testing uses the following test domains. These will need to be
+configured to resolve to the [test server](test/automation/test-server.js).
+
+```
+127.0.0.1	test-website.example
+127.0.0.1	test-report-cookies.example
+127.0.0.1	test-third-party.example
+```

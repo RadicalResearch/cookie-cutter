@@ -1,13 +1,12 @@
 const http = require("http");
-const fs = require("fs");
-const path = require("path");
 
-function startTestServer(collectCallback) {
-  const script = fs.readFileSync(
-    path.resolve(__dirname, "../../dist/client.js"),
-    "utf-8"
-  );
-
+function startTestServer(
+  port,
+  clientScript,
+  thirdPartyScriptSrc,
+  reportCallback
+) {
+  // OPTIONS /collect - CORS preflight checks
   function handlePreflight(req, res) {
     res.setHeader("Access-Control-Allow-Origin", req.headers["origin"]);
     res.setHeader("Access-Control-Allow-Methods", "POST");
@@ -16,8 +15,8 @@ function startTestServer(collectCallback) {
     res.end();
   }
 
-  function handleCollect(req, res) {
-    console.log(req.method, req.url, req.headers);
+  // POST /collect - cookie reports
+  function handleReport(req, res) {
     let body = [];
     req
       .on("data", (chunk) => {
@@ -25,12 +24,13 @@ function startTestServer(collectCallback) {
       })
       .on("end", () => {
         body = Buffer.concat(body).toString();
-        collectCallback(req, body);
+        reportCallback(body);
       });
     res.writeHead(200);
     res.end("OK");
   }
 
+  // GET /* - test page
   function handlePage(req, res) {
     res.writeHead(200);
     res.end(`<!DOCTYPE html>
@@ -38,29 +38,45 @@ function startTestServer(collectCallback) {
 <head>
 <meta charset="UTF-8">
 <title>Test Document</title>
-<script>${script}</script>
+<!-- Include the client code inline  -->
+<script>${clientScript}</script>
 </head>
 <body>
-<!-- Body -->
+<h1>Test Document</h1>
+<!-- Third party script that sets a first party cookie -->
+<script src=${thirdPartyScriptSrc}></script>
 </body>
 </html>`);
   }
 
-  const requests = [];
+  // GET /script - test script that sets a large cookie
+  function handleSetCookieScript(req, res) {
+    res.setHeader("Content-type", "text/javascript");
+    res.writeHead(200);
+    res.end(`document.cookie = "test-cookie=${"a".repeat(500)}"`);
+  }
+
+  // Start the server
   return new Promise(function (resolve) {
-    http
+    const server = http
       .createServer(function requestListener(req, res) {
         if (req.url.startsWith("/collect")) {
           if (req.method === "OPTIONS") {
             return handlePreflight(req, res);
           } else if (req.method === "POST") {
-            return handleCollect(req, res);
+            return handleReport(req, res);
           }
+        }
+        if (req.url.startsWith("/script")) {
+          return handleSetCookieScript(req, res);
         }
         return handlePage(req, res);
       })
-      .listen(8080, () => {
-        resolve(requests);
+      .listen(port, () => {
+        // Resolve with a function that stops the server
+        resolve(function () {
+          server.close();
+        });
       });
   });
 }

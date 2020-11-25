@@ -10,14 +10,15 @@ jobs:
   #     - checkout
   #     - run: npm ci
   #     - run: npm run build
-  integration_test:
+  automation_test:
     executor: node
     steps:
       - checkout
       - run: npm install
       - run: |
-          echo 127.0.0.1 localhost.example.com | sudo tee -a /etc/hosts
-          echo 127.0.0.1 collect.example.org | sudo tee -a /etc/hosts
+          echo 127.0.0.1 test-website.example | sudo tee -a /etc/hosts
+          echo 127.0.0.1 test-report-cookies.example | sudo tee -a /etc/hosts
+          echo 127.0.0.1 test-third-party.example | sudo tee -a /etc/hosts
       - run: npm test
 
 workflows:
@@ -25,6 +26,9 @@ workflows:
   build-test-and-deploy:
     jobs:
       # - build
-      - integration_test
+      - automation_test
           # requires:
           #   - build
+      #- deploy
+          # requires:
+          #   - automation_test
