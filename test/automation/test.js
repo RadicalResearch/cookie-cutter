@@ -160,7 +160,7 @@ async function test(testName, driver, reports) {
 
   const results = await Promise.allSettled(tests);
 
-  console.log("Reports", reports.map(JSON.parse));
+  console.log("Reports", JSON.stringify(reports.map(JSON.parse), null, 2));
   console.log("Results", results);
 
   await stopTestServer();
@@ -169,9 +169,11 @@ async function test(testName, driver, reports) {
 
   if (results.some(({ status }) => status !== "fulfilled")) {
     // Exist with a non-zero code if any tests failed
-    process.exit(1);
+    console.log("Failed");
+    return process.exit(1);
   }
 
   // Success
+  console.log("Success");
   process.exit(0);
 })();
