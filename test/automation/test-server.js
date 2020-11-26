@@ -95,7 +95,7 @@ function startTestServer(
         }
         return handlePage(req, res);
       })
-      .listen(port, () => {
+      .listen(port, "0.0.0.0", () => {
         // Resolve with a function that stops the server
         resolve(function () {
           server.close();
