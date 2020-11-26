@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const assert = require("assert").strict;
 //const openTunnel = require("./open-tunnel");
-const startTestServer = require("./test-server");
+//const startTestServer = require("./test-server");
 
 const remoteHub = process.env.CROSSBROWSERTESTING_URL;
 const username = process.env.CROSSBROWSERTESTING_USERNAME;
@@ -46,11 +46,13 @@ async function test(testName, driver, reports) {
   // );
 
   try {
-    const urlPath = Math.floor(Math.random() * 0x7fffffff).toString(32);
-
-    console.log("Opening the page...");
+    // Load up a test site
+    console.log("Opening example page...");
+    await driver.get("http://www.example.com/");
 
     // Load up the test page with the client integration
+    console.log("Opening test page...");
+    const urlPath = Math.floor(Math.random() * 0x7fffffff).toString(32);
     await driver.get(pageUrl + urlPath);
 
     // Wait for the script to drop the cookie
@@ -170,7 +172,7 @@ async function test(testName, driver, reports) {
   console.log("## Test results");
   console.dir(results, { depth: null });
 
-  await stopTestServer();
+  //await stopTestServer();
 
   //await closeTunnel();
 

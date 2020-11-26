@@ -23,6 +23,7 @@ jobs:
             wget https://sbsecuretunnel.s3.amazonaws.com/cli/linux/SBSecureTunnel
             chmod +x SBSecureTunnel
             ./SBSecureTunnel \
+              --quiet \
               --username "${CROSSBROWSERTESTING_USERNAME}" \
               --authkey ${CROSSBROWSERTESTING_AUTHKEY} \
               --acceptAllCerts \
@@ -34,6 +35,16 @@ jobs:
             echo 127.0.0.1 test-website.example | sudo tee -a /etc/hosts
             echo 127.0.0.1 test-report-cookies.example | sudo tee -a /etc/hosts
             echo 127.0.0.1 test-third-party.example | sudo tee -a /etc/hosts
+      - run:
+          name: Run build
+          command: npm build
+      - run:
+          name: Run server
+          command: npm run test-server
+          background: true
+      - run:
+          name: Try requesting test page
+          command: wget -q -O - http://test-website.example:8881/
       - run:
           name: Run automation tests
           command: npm test
