@@ -90,39 +90,39 @@ async function test(testName, driver, reports) {
 
   // Define the browsers to run tests in
   const browsers = [
-    {
-      name: "Chrome 86 Windows Desktop",
-      browserName: "Chrome",
-      version: "86x64",
-      platform: "Windows 10",
-    },
-    {
-      name: "IE 9",
-      browserName: "Internet Explorer",
-      version: "9",
-      platform: "Windows 7 64-Bit",
-      initialBrowserUrl: "about:blank",
-      ignoreProtectedModeSettings: "true",
-      record_video: "true",
-    },
-    {
-      name: "Safari 8 Desktop",
-      browserName: "Safari",
-      version: "8",
-      platform: "Mac OSX 10.10",
-    },
-    {
-      name: "Edge 86 Desktop",
-      browserName: "MicrosoftEdge",
-      version: "86",
-      platform: "Windows 10",
-    },
-    {
-      name: "Firefox 82 Windows Desktop",
-      browserName: "Firefox",
-      version: "82x64",
-      platform: "Windows 10",
-    },
+    // {
+    //   name: "Chrome 86 Windows Desktop",
+    //   browserName: "Chrome",
+    //   version: "86x64",
+    //   platform: "Windows 10",
+    // },
+    // {
+    //   name: "IE 9",
+    //   browserName: "Internet Explorer",
+    //   version: "9",
+    //   platform: "Windows 7 64-Bit",
+    //   initialBrowserUrl: "about:blank",
+    //   ignoreProtectedModeSettings: "true",
+    //   record_video: "true",
+    // },
+    // {
+    //   name: "Safari 8 Desktop",
+    //   browserName: "Safari",
+    //   version: "8",
+    //   platform: "Mac OSX 10.10",
+    // },
+    // {
+    //   name: "Edge 86 Desktop",
+    //   browserName: "MicrosoftEdge",
+    //   version: "86",
+    //   platform: "Windows 10",
+    // },
+    // {
+    //   name: "Firefox 82 Windows Desktop",
+    //   browserName: "Firefox",
+    //   version: "82x64",
+    //   platform: "Windows 10",
+    // },
     {
       name: "Safari 9 Mobile",
       browserName: "Safari",
@@ -131,14 +131,14 @@ async function test(testName, driver, reports) {
       platformName: "iOS",
       deviceOrientation: "landscape",
     },
-    {
-      name: "Chrome Android",
-      browserName: "Chrome",
-      deviceName: "Galaxy Tab S5E",
-      platformVersion: "9.0",
-      platformName: "Android",
-      deviceOrientation: "portrait",
-    },
+    // {
+    //   name: "Chrome Android",
+    //   browserName: "Chrome",
+    //   deviceName: "Galaxy Tab S5E",
+    //   platformVersion: "9.0",
+    //   platformName: "Android",
+    //   deviceOrientation: "portrait",
+    // },
   ];
 
   // Run tests in parallel
@@ -160,8 +160,11 @@ async function test(testName, driver, reports) {
 
   const results = await Promise.allSettled(tests);
 
-  console.log("Reports", JSON.stringify(reports.map(JSON.parse), null, 2));
-  console.log("Results", results);
+  console.log("## Cookie Reports");
+  console.dir(reports.map(JSON.parse), { depth: null });
+
+  console.log("## Test results");
+  console.dir(results, { depth: null });
 
   await stopTestServer();
 
