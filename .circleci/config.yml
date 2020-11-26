@@ -37,7 +37,7 @@ jobs:
             echo 127.0.0.1 test-third-party.example | sudo tee -a /etc/hosts
       - run:
           name: Run build
-          command: npm build
+          command: npm run build
       - run:
           name: Run server
           command: npm run test-server
