@@ -48,11 +48,15 @@ async function test(testName, driver, reports) {
   try {
     const urlPath = Math.floor(Math.random() * 0x7fffffff).toString(32);
 
+    console.log("Opening the page...");
+
     // Load up the test page with the client integration
-    await driver.get(pageUrl + encodeURIComponent(testName) + "/" + urlPath);
+    await driver.get(pageUrl + urlPath);
 
     // Wait for the script to drop the cookie
     await wait(5000);
+
+    console.log("Navigating away...");
 
     // Navigate away from the page to cause the report to be sent
     await driver.get("about:blank");
