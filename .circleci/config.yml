@@ -22,7 +22,12 @@ jobs:
           command: |
             wget https://sbsecuretunnel.s3.amazonaws.com/cli/linux/SBSecureTunnel
             chmod +x SBSecureTunnel
-            ./SBSecureTunnel --username "${CROSSBROWSERTESTING_USERNAME}" --authkey ${CROSSBROWSERTESTING_AUTHKEY} --acceptAllCerts
+            ./SBSecureTunnel \
+              --username "${CROSSBROWSERTESTING_USERNAME}" \
+              --authkey ${CROSSBROWSERTESTING_AUTHKEY} \
+              --acceptAllCerts \
+              --tunnelname CI
+          background: true
       - run:
           name: Configure DNS
           command: |
