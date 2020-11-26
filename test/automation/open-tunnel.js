@@ -16,7 +16,11 @@ function openTunnel() {
           reject(err);
           return;
         }
-        resolve();
+        resolve(function () {
+          return new Promise((resolve) => {
+            cbt.stop(resolve);
+          });
+        });
       });
     },
   };

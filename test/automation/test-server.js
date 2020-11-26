@@ -8,10 +8,17 @@ function startTestServer(
 ) {
   // OPTIONS /collect - CORS preflight checks
   function handlePreflight(req, res) {
-    res.setHeader("Access-Control-Allow-Origin", req.headers["origin"]);
+    // Safari seem to be very picky about the allowed headers so we explicitly
+    // allow whatever it asks for, rather than *.
+    const requestOrigin = req.headers["origin"] || "*";
+    const requestHeaders = req.headers["access-control-request-headers"] || "*";
+    res.setHeader("Access-Control-Allow-Origin", requestOrigin);
     res.setHeader("Access-Control-Allow-Methods", "POST");
+    res.setHeader("Access-Control-Allow-Headers", requestHeaders);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Access-Control-Max-Age", "86400");
-    res.writeHead(204); //No Content
+    res.setHeader("Vary", "Origin");
+    res.writeHead(204); // No Content
     res.end();
   }
 
@@ -26,8 +33,19 @@ function startTestServer(
         body = Buffer.concat(body).toString();
         reportCallback(body);
       });
-    res.writeHead(200);
-    res.end("OK");
+    res.setHeader("Content-type", "text/plain");
+    // Safari 9 on iOS doesn't send a pre-flight OPTIONS request, it sends the
+    // POST but expects the CORS headers in the response.
+    const requestOrigin = req.headers["origin"] || "*";
+    const requestHeaders = req.headers["access-control-request-headers"] || "*";
+    res.setHeader("Access-Control-Allow-Origin", requestOrigin);
+    res.setHeader("Access-Control-Allow-Methods", "POST");
+    res.setHeader("Access-Control-Allow-Headers", requestHeaders);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Max-Age", "86400");
+    res.setHeader("Vary", "Origin");
+    res.writeHead(204); // OK
+    res.end();
   }
 
   // GET /* - test page
@@ -43,6 +61,7 @@ function startTestServer(
 </head>
 <body>
 <h1>Test Document</h1>
+<a href="about:blank">about:blank</a>
 <!-- Third party script that sets a first party cookie -->
 <script src=${thirdPartyScriptSrc}></script>
 </body>
@@ -53,7 +72,11 @@ function startTestServer(
   function handleSetCookieScript(req, res) {
     res.setHeader("Content-type", "text/javascript");
     res.writeHead(200);
-    res.end(`document.cookie = "test-cookie=${"a".repeat(500)}"`);
+    res.end(
+      `document.cookie = "test-cookie-${Math.floor(
+        Math.random() * 0x7fffffff
+      ).toString(32)}=${"a".repeat(500)}"`
+    );
   }
 
   // Start the server

@@ -39,21 +39,20 @@ function findReport(reports, urlPath) {
 
 async function test(testName, driver, reports) {
   // Report session details
-  const session = await driver.getSession();
-  sessionId = session.id_;
-  console.log("Session ID: ", sessionId);
-  console.log(
-    "Test URL https://app.crossbrowsertesting.com/selenium/" + sessionId
-  );
+  // const session = await driver.getSession();
+  // sessionId = session.id_;
+  // console.log(
+  //   "Test URL https://app.crossbrowsertesting.com/selenium/" + sessionId
+  // );
 
   try {
     const urlPath = Math.floor(Math.random() * 0x7fffffff).toString(32);
 
     // Load up the test page with the client integration
-    await driver.get(pageUrl + urlPath);
+    await driver.get(pageUrl + encodeURIComponent(testName) + "/" + urlPath);
 
     // Wait for the script to drop the cookie
-    await wait(500);
+    await wait(5000);
 
     // Navigate away from the page to cause the report to be sent
     await driver.get("about:blank");
@@ -78,7 +77,7 @@ async function test(testName, driver, reports) {
 
 (async function runTests() {
   // Open SSH tunnel to test grid
-  await openTunnel();
+  const closeTunnel = await openTunnel();
 
   // Start a stub HTTP server and collect reports
   const reports = [];
@@ -92,12 +91,19 @@ async function test(testName, driver, reports) {
   // Define the browsers to run tests in
   const browsers = [
     {
+      name: "Chrome 86 Windows Desktop",
+      browserName: "Chrome",
+      version: "86x64",
+      platform: "Windows 10",
+    },
+    {
       name: "IE 9",
       browserName: "Internet Explorer",
       version: "9",
       platform: "Windows 7 64-Bit",
       initialBrowserUrl: "about:blank",
       ignoreProtectedModeSettings: "true",
+      record_video: "true",
     },
     {
       name: "Safari 8 Desktop",
@@ -118,13 +124,7 @@ async function test(testName, driver, reports) {
       platform: "Windows 10",
     },
     {
-      name: "Chrome 86 Windows Desktop",
-      browserName: "Chrome",
-      version: "86x64",
-      platform: "Windows 10",
-    },
-    {
-      name: "Safari 9.3 iOS",
+      name: "Safari 9 Mobile",
       browserName: "Safari",
       deviceName: "iPad Pro Simulator",
       platformVersion: "9.3",
@@ -160,11 +160,18 @@ async function test(testName, driver, reports) {
 
   const results = await Promise.allSettled(tests);
 
-  console.log("Reports", reports);
-
+  console.log("Reports", reports.map(JSON.parse));
   console.log("Results", results);
 
-  stopTestServer();
+  await stopTestServer();
 
+  await closeTunnel();
+
+  if (results.some(({ status }) => status !== "fulfilled")) {
+    // Exist with a non-zero code if any tests failed
+    process.exit(1);
+  }
+
+  // Success
   process.exit(0);
 })();

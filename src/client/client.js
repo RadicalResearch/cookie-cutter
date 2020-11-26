@@ -22,13 +22,13 @@
     // Dictionary of all the reports of cookies by name
     var cookieNameSet = {};
 
-    function sendReports() {
+    function sendReports(eventType) {
       var reports = [];
       // Patching the document.cookie may not have been possible in old browsers or
       // cookies may have been set in other contexts since the script was
       // initialized. Report these but mark them as not intercepted.
       document.cookie.split(";").forEach(function (cookie) {
-        var cookieParts = cookie.split("=");
+        var cookieParts = cookie.trim().split("=");
         var cookieName = cookieParts[0];
         if (!(cookieName in cookieNameSet)) {
           // Add a report to be sent
@@ -45,7 +45,8 @@
       // Collect all the reports
       var cookieNames = Object.getOwnPropertyNames(cookieNameSet);
       for (var index = 0; index < cookieNames.length; index++) {
-        var report = cookieNameSet[cookieNames[index]];
+        var cookieName = cookieNames[index];
+        var report = cookieNameSet[cookieName];
         if (report) {
           // Only report cookies larger than the given threshold
           if (report.size > cookieSizeThreshold) {
@@ -58,12 +59,13 @@
 
       var collectorUrl = collector + "?view=" + viewId;
       // Only send the request if there are any cookies to report
-      if (reports.length > 0) {
+      if (reports.length > -1) {
         var data = {
           viewId: viewId,
           viewUrl: viewUrl,
           viewUserAgent: viewUserAgent,
           reports: reports,
+          eventType: eventType,
         };
 
         // Try to use the Beacon API, fall back to XHR if its not available
@@ -109,18 +111,18 @@
           var cookieName = cookieParts[1];
           var cookieValue = cookieParts[2] || "";
           var cookieAttributes = cookieParts[3] || "";
-          var size = cookieName.length + cookieValue.length;
+          var cookieSize = cookieName.length + cookieValue.length;
           var report = cookieNameSet[cookieName];
 
           // Add new reports and overwrite smaller ones;
           if (
             !(cookieName in cookieNameSet) ||
-            (report && report.size < size)
+            (report && report.size < cookieSize)
           ) {
             // Add the report
             cookieNameSet[cookieName] = {
               name: cookieName,
-              size: cookieName.length + cookieValue.length,
+              size: cookieSize,
               attributes: cookieAttributes,
               source: source,
               intercepted: true,
@@ -130,8 +132,9 @@
           // Return here to disable big cookies being set or alternatively push
           // them to local storage and intercept the "get" to re-populate them too.
         } catch (e) {
-          // Something went wrong
-          console.log(e);
+          if (window.console && window.console.error) {
+            console.error(e);
+          }
         }
 
         // Call the original assignment
@@ -141,11 +144,11 @@
 
     // Record cookies that are already present when the script is initialized
     document.cookie.split(";").forEach(function (pair) {
-      cookieNameSet[pair.split("=")[0]] = false;
+      cookieNameSet[pair.trim().split("=")[0]] = false;
     });
 
     // Intercept subsequent assignments to document.cookie
-    const cookiePropertyDescriptor =
+    var cookiePropertyDescriptor =
       Object.getOwnPropertyDescriptor(Document.prototype, "cookie") ||
       Object.getOwnPropertyDescriptor(HTMLDocument.prototype, "cookie");
     // Try to patch document.cookie (doesn't work for old safari versions)
@@ -158,39 +161,62 @@
 
     // Capture when the user moves away from the page and
     // send reports
-    if (typeof window.safari === "object" && "onpagehide" in window) {
-      // Work around Safari-specific bugs. - Its preferable for the report to be
-      // sent by pagehide event handler but this doesn't reliably fire so
-      // fallback to using beforeunload. If pagehide fires, it occurs immediately
-      // *after* beforeunload, cancel the timeout that was set in the
-      // beforeunload handler and sends the report in the pagehide handler.
-      var safariTimeout;
-      window.addEventListener("pagehide", function () {
-        clearTimeout(safariTimeout);
-        sendReports();
-      });
+    if (typeof document.visibilityState === "undefined") {
+      // Page Visibility API is not supported
+      // Old browsers - fall back to the beforeunload event
       window.addEventListener("beforeunload", function (event) {
-        safariTimeout = setTimeout(function () {
-          if (!(event.defaultPrevented || event.returnValue.length > 0)) {
-            sendReports();
-          }
-        }, 0);
-      });
-    } else if (typeof document.visibilityState === "undefined") {
-      // Ancient browsers - fall back to the beforeunload event
-      window.addEventListener("beforeunload", function (event) {
-        if (!(event.defaultPrevented || event.returnValue.length > 0)) {
-          sendReports();
-        }
+        sendReports(event.type);
       });
     } else {
-      // Modern browsers - Use the visibility API to send reports when the page
-      // bis hidden. This occurs when navigating away from a page but also
+      // Page Visibility API is supported
+      // Modern browsers - Use the page visibility API to send reports when the page
+      // is hidden. This occurs when navigating away from a page but also
       // supports mobile interactions where the tab is "frozen".
-      document.addEventListener("visibilitychange", function () {
+      document.addEventListener("visibilitychange", function (event) {
         if (document.visibilityState === "hidden") {
-          sendReports();
+          sendReports(event.type);
         }
+      });
+    }
+
+    // Work around Safari-specific bugs.
+    // Detect safari because the visibilityApi only works sometimes
+    var isSafari =
+      // mobile
+      (window.navigator.userAgent.match(/iP(ad|od|hone)/i) &&
+        navigator.vendor == "Apple Computer, Inc.") ||
+      // desktop
+      "safari" in window;
+
+    if (isSafari) {
+      var safariTimeout;
+
+      // The visibilitychange event doesn't fire when navigating away, but
+      // pagehide does (on mobile).
+      window.addEventListener(
+        "pagehide",
+        function (event) {
+          clearTimeout(safariTimeout);
+          sendReports(event.type);
+        },
+        true
+      );
+
+      // It's preferable for the report to be sent by pagehide or
+      // visibilitychange event handler but this doesn't reliably fire (on
+      // desktop) so fallback to using beforeunload. If pagehide fires, it occurs
+      // immediately *after* beforeunload Cancel the timeout that was set in
+      // the beforeunload handler and send the report in the
+      // pagehide handler instead.
+      window.addEventListener("beforeunload", function (event) {
+        safariTimeout = setTimeout(function () {
+          if (
+            !event.defaultPrevented &&
+            typeof event.returnValue !== "string"
+          ) {
+            sendReports(event.type);
+          }
+        }, 0);
       });
     }
   }

@@ -15,10 +15,12 @@ jobs:
     steps:
       - checkout
       - run: npm install
-      - run: |
-          echo 127.0.0.1 test-website.example | sudo tee -a /etc/hosts
-          echo 127.0.0.1 test-report-cookies.example | sudo tee -a /etc/hosts
-          echo 127.0.0.1 test-third-party.example | sudo tee -a /etc/hosts
+      - run:
+          name: Configure DNS
+          command: |
+            echo 127.0.0.1 test-website.example | sudo tee -a /etc/hosts
+            echo 127.0.0.1 test-report-cookies.example | sudo tee -a /etc/hosts
+            echo 127.0.0.1 test-third-party.example | sudo tee -a /etc/hosts
       - run: npm test
 
 workflows:

@@ -17,7 +17,7 @@ const minifiedCode = escodegen.generate(ast, {
   format: {
     renumber: true,
     escapeless: true,
-    compact: true,
+    compact: false,
     semicolons: false,
     parentheses: false,
   },
