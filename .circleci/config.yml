@@ -18,6 +18,12 @@ jobs:
           name: Install dependencies
           command: npm install
       - run:
+          name: Open tunnel
+          command: |
+            wget https://sbsecuretunnel.s3.amazonaws.com/cli/linux/SBSecureTunnel
+            chmod +x SBSecureTunnel
+            ./SBSecureTunnel --username "${CROSSBROWSERTESTING_USERNAME}" --authkey ${CROSSBROWSERTESTING_AUTHKEY} --acceptAllCerts
+      - run:
           name: Configure DNS
           command: |
             echo 127.0.0.1 test-website.example | sudo tee -a /etc/hosts

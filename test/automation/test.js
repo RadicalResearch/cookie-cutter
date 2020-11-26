@@ -2,7 +2,7 @@ const { Builder } = require("selenium-webdriver");
 const fs = require("fs");
 const path = require("path");
 const assert = require("assert").strict;
-const openTunnel = require("./open-tunnel");
+//const openTunnel = require("./open-tunnel");
 const startTestServer = require("./test-server");
 
 const remoteHub = process.env.CROSSBROWSERTESTING_URL;
@@ -81,7 +81,7 @@ async function test(testName, driver, reports) {
 
 (async function runTests() {
   // Open SSH tunnel to test grid
-  const closeTunnel = await openTunnel();
+  //const closeTunnel = await openTunnel();
 
   // Start a stub HTTP server and collect reports
   const reports = [];
@@ -172,7 +172,7 @@ async function test(testName, driver, reports) {
 
   await stopTestServer();
 
-  await closeTunnel();
+  //await closeTunnel();
 
   if (results.some(({ status }) => status !== "fulfilled")) {
     // Exist with a non-zero code if any tests failed
