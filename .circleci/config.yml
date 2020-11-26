@@ -44,7 +44,7 @@ jobs:
           background: true
       - run:
           name: Try requesting test page
-          command: wget -O - http://test-website.example:8881/
+          command: wget --retry-connrefused --waitretry=1 --timeout=15 --tries 5 -O - http://test-website.example:8881/
       - run:
           name: Run automation tests
           command: npm test
