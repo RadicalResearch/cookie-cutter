@@ -4,12 +4,9 @@ const esprima = require("esprima");
 const esmangle = require("esmangle");
 const escodegen = require("escodegen");
 
-const code = fs.readFileSync(
-  path.resolve(__dirname, "../src/client/client.js"),
-  {
-    encoding: "utf8",
-  }
-);
+const code = fs.readFileSync(path.resolve(__dirname, "../src/client.js"), {
+  encoding: "utf8",
+});
 
 let ast = esprima.parse(code);
 ast = esmangle.mangle(ast);

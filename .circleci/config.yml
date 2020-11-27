@@ -1,16 +1,25 @@
 version: 2.1
 executors:
   node:
+    working_directory: ~/workspace
     docker:
-      - image: cimg/node:15.0.1
+      - image: circleci/node:15.3
 jobs:
   automation_test:
     executor: node
     steps:
       - checkout
+      - restore_cache:
+          keys:
+          - npm-dependencies-{{ checksum "package.json" }}
+          - npm-dependencies-
       - run:
           name: Install dependencies
           command: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: npm-dependencies-{{ checksum "package.json" }}
       - run:
           name: Configure DNS
           command: |
@@ -26,6 +35,24 @@ jobs:
       - checkout
       - run: npm ci
       - run: npm run build
+      - persist_to_workspace:
+          root: ~/workspace
+          paths: .
+  deploy:
+    executor: node
+    steps:
+      - attach_workspace:
+          at: ~/workspace
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/workspace/.npmrc
+      - run:
+          name: Sync version with git
+          command: npm version from-git
+      - run:
+          name: Publish package
+          command: npm publish
+
 
 workflows:
   version: 2
@@ -33,7 +60,12 @@ workflows:
     jobs:
       - automation_test
       - build
-      # - deploy:
-      #     requires:
-      #       - build
-      #       - automation_test
+      - deploy:
+          requires:
+            - automation_test
+            - build
+          filters:
+            tags:
+              only: /^\d+\.\d+\.\d+/
+            branches:
+              ignore: /.*/
