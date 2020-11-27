@@ -81,7 +81,7 @@ async function test(testName, driver, reports) {
 
 (async function runTests() {
   // Open SSH tunnel to test grid
-  const closeTunnel = await openTunnel();
+  //const closeTunnel = await openTunnel();
 
   // Start a stub HTTP server and collect reports
   const reports = [];
@@ -172,7 +172,7 @@ async function test(testName, driver, reports) {
 
   await stopTestServer();
 
-  await closeTunnel();
+  //await closeTunnel();
 
   if (results.some(({ status }) => status !== "fulfilled")) {
     // Exist with a non-zero code if any tests failed
