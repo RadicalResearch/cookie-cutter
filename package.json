@@ -1,28 +1,32 @@
 {
-  "name": "cookie-cutter",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "private": true,
+  "name": "@radicalresearch/cookie-report",
+  "version": "0.0.0",
+  "description": "Capture reports of cookies being set by third-party scripts",
+  "main": "dist/client.js",
+  "files": [],
+  "private": false,
   "scripts": {
     "build": "node scripts/build.js",
     "pretest": "npm run build",
     "test": "node -r dotenv/config test/automation/test.js",
     "test-server": "node scripts/test-server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "cookies",
+    "monitoring",
+    "reporting",
+    "header",
+    "debugging"
+  ],
+  "author": "Sam Greenhalgh <sam@radicalresearch.co.uk>",
+  "license": "MIT",
   "dependencies": {},
   "devDependencies": {
     "cbt_tunnels": "^1.2.2",
-    "chromedriver": "^87.0.0",
     "dotenv": "^8.2.0",
-    "edgedriver": "^4.17134.1",
     "escodegen": "^2.0.0",
     "esmangle": "^1.0.1",
     "esprima": "^4.0.1",
-    "geckodriver": "^1.21.0",
     "selenium-webdriver": "^4.0.0-alpha.7"
   }
 }

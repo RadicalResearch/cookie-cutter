@@ -1,47 +1,52 @@
-# Cookie Cutter
+# Cookie Report
 
 **Notice:** _This service is currently experimental. It should not be considered
 production-ready._
 
-Intercept scripts setting first-party cookies. Report on the cookies being set
-and potentially store them with an alternative mechanism (like local storage) or
-disregard the cookie entirely.
+Capture reports of cookies being set by third-party scripts.
 
 A plethora of different third-party and first-party javascript now commonly runs
 on most websites. Each of these scripts having their own motivations for
-persisting values in cookies. The cumulative effect of this ecosystems setting
-cookies on the same domain can have deleterious effects. The size of the cookies
+persisting values in cookies. The cumulative effect of these cookies all being
+set on the same domain can have deleterious effects. The size of the cookies
 build up over time and can result in bloated HTTP request headers.
 
 With ad-networks and tag managers often loading scripts indirectly from any
-number of other sources it can be difficult to have a clear view of what scripts
-are responsible for setting what cookies, and consequently make decisions or
-take action about how to control these cookies.
+number of other sources it can be difficult get a clear view of what scripts are
+responsible for setting what cookies, and consequently make decisions about how
+to control these cookies.
 
 This is an experimental solution to getting a clearer view of what scripts are
-setting what cookies. It may also provide a potential mechanism for proactively
+setting cookies. It may also provide a potential mechanism for proactively
 mitigating the problem of bloated use of cookies.
 
 ### How it works
 
-A javascript patches the `document.cookie` property used by other scripts to set
+Javascript patches the `document.cookie` property used by other scripts to set
 cookies. It then intercepts assignments of cookies to gathers a reports of the
-size, name and, importantly, the javascript file that was responsible for
-setting the cookie. These reports can then collected in a central location and
+size, name and the javascript file that was responsible for setting the cookie.
+These reports are sent using the sendBeacon API when the user navigates away
+from the page. The reports can then be collected in a central location and
 reviewed to determine what action should be taken to address the scripts that
 are responsible for setting unwanted cookies.
 
-With this report it would, potentially be possible to update the same script to
-disregard or provide alternative provision for cookies that were not deemed
-necessary.
+## Installation and Usage
 
-### Testing
+To install you can include the client script as part of your page so it runs
+before cookies are set by other scripts.
 
-Automation testing uses the following test domains. These will need to be
-configured to resolve to the [test server](test/automation/test-server.js).
+Install the NPM package
 
+```bash
+npm install --save @radical-research/cookie-report
 ```
-127.0.0.1	test-website.example
-127.0.0.1	test-report-cookies.example
-127.0.0.1	test-third-party.example
+
+Setup the client script
+
+```javascript
+// Reference the client script - This defines the cookieReport function in global scope
+require("@radical-research/cookie-report");
+
+// Start capturing cookies
+cookieReport();
 ```
