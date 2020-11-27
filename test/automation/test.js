@@ -2,8 +2,8 @@ const { Builder } = require("selenium-webdriver");
 const fs = require("fs");
 const path = require("path");
 const assert = require("assert").strict;
-//const openTunnel = require("./open-tunnel");
-//const startTestServer = require("./test-server");
+const openTunnel = require("./open-tunnel");
+const startTestServer = require("./test-server");
 
 const remoteHub = process.env.CROSSBROWSERTESTING_URL;
 const username = process.env.CROSSBROWSERTESTING_USERNAME;
@@ -46,25 +46,23 @@ async function test(testName, driver, reports) {
   // );
 
   try {
-    // Load up a test site
-    console.log("Opening example page...");
-    await driver.get("http://www.example.com/");
+    console.log("Opening the page...");
+    await driver.get("http://www.example.com");
 
     // Load up the test page with the client integration
-    console.log("Opening test page...");
-    const urlPath = Math.floor(Math.random() * 0x7fffffff).toString(32);
-    await driver.get(pageUrl + urlPath);
+    // const urlPath = Math.floor(Math.random() * 0x7fffffff).toString(32);
+    // await driver.get(pageUrl + urlPath);
 
     // Wait for the script to drop the cookie
-    await wait(5000);
+    //await wait(5000);
 
-    console.log("Navigating away...");
+    // console.log("Navigating away...");
 
-    // Navigate away from the page to cause the report to be sent
-    await driver.get("about:blank");
+    // // Navigate away from the page to cause the report to be sent
+    // await driver.get("about:blank");
 
     // Wait for report to be received
-    await wait(5000);
+    //await wait(5000);
 
     // Assert that the report was be received
     // const beaconRequest = findReport(reports, urlPath);
@@ -83,16 +81,16 @@ async function test(testName, driver, reports) {
 
 (async function runTests() {
   // Open SSH tunnel to test grid
-  //const closeTunnel = await openTunnel();
+  const closeTunnel = await openTunnel();
 
   // Start a stub HTTP server and collect reports
   const reports = [];
-  // const stopTestServer = await startTestServer(
-  //   PORT,
-  //   clientScript + `;reportCookies("${reportCookiesUrl}",0);`,
-  //   thirdPartyScriptSrc,
-  //   (report) => reports.push(report)
-  // );
+  const stopTestServer = await startTestServer(
+    PORT,
+    clientScript + `;reportCookies("${reportCookiesUrl}",0);`,
+    thirdPartyScriptSrc,
+    (report) => reports.push(report)
+  );
 
   // Define the browsers to run tests in
   const browsers = [
@@ -172,9 +170,9 @@ async function test(testName, driver, reports) {
   console.log("## Test results");
   console.dir(results, { depth: null });
 
-  //await stopTestServer();
+  await stopTestServer();
 
-  //await closeTunnel();
+  await closeTunnel();
 
   if (results.some(({ status }) => status !== "fulfilled")) {
     // Exist with a non-zero code if any tests failed
