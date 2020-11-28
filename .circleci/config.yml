@@ -48,7 +48,7 @@ jobs:
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/workspace/.npmrc
       - run:
           name: Sync version with git
-          command: npm version from-git
+          command: npm --no-git-tag-version version $CIRCLE_TAG
       - run:
           name: Publish package
           command: npm publish
