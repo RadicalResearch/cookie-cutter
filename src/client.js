@@ -1,9 +1,12 @@
 (function (window, document, navigator) {
   function init(collector, cookieSizeThreshold) {
+    var location = window.location;
     if (typeof collector !== "string") {
-      collector = "/collect";
+      // Default to sending reports to /cookie-report on the current origin
+      collector = location.protocol + "//" + location.host + "/cookie-report";
     }
     if (typeof cookieSizeThreshold !== "number") {
+      // Default to reporting all cookies, irrespective of size
       cookieSizeThreshold = 0;
     }
 
@@ -16,7 +19,7 @@
       Math.floor(Date.now() / 1000);
 
     // The URL and user-agent string so they can be included with the reports for context
-    var viewUrl = window.location.href;
+    var viewUrl = location.href;
     var viewUserAgent = navigator.userAgent;
 
     // Dictionary of all the reports of cookies by name
